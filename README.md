@@ -33,7 +33,7 @@ This repository contains a basic Go web server that serves static files and hand
 3. **Access the Server**: Open your web browser and navigate to `http://localhost:8080` to access the server.
 
 ## File Structure
-!./images/my-image.png
+!images/routes.png
 
 - **`index.html`**: Contains the HTML markup for the home page of the server.
 - **`form.html`**: Contains the HTML markup for the form page of the server.
