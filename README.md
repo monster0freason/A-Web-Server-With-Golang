@@ -15,7 +15,7 @@ This repository contains a basic Go web server that serves static files and hand
 
 4. **Navigate to Project Directory**: Change into the project directory using:
    ```bash
-   cd go-server
+   cd A-Web-Server-With-Golang
    ```
 
 ## Running the Server
@@ -27,7 +27,7 @@ This repository contains a basic Go web server that serves static files and hand
 
 2. **Run the Server**: Execute the built binary to start the server:
    ```bash
-   ./go-server
+   go run main.go
    ```
 
 3. **Access the Server**: Open your web browser and navigate to `http://localhost:8080` to access the server.
@@ -136,19 +136,65 @@ func main() {
 
 This is the main function of the program, responsible for setting up routes and starting the HTTP server. Let's break it down:
 
-- `fileServer := http.FileServer(http.Dir("./static"))`: This line creates a file server to serve static files from the "static" directory. It uses `http.FileServer()` to create the file server.
+### `http.FileServer(http.Dir("./static"))`:
 
-- `http.Handle("/", fileServer)`: This line registers the file server to handle requests to the root path "/" using `http.Handle()`.
+The `http.FileServer()` function creates a handler that serves HTTP requests with the contents of the file system rooted at a given directory. Here's what happens internally:
 
-- `http.HandleFunc("/form", formHandler)`: This line registers the `formHandler` function to handle requests to the "/form" route using `http.HandleFunc()`.
+1. It takes a parameter of type `http.FileSystem`. In this case, `http.Dir("./static")` returns an `http.Dir` object representing the directory "./static".
+  
+2. The `http.Dir` type implements the `http.FileSystem` interface, which allows it to serve files from the specified directory.
 
-- `http.HandleFunc("/hello", helloHandler)`: Similarly, this line registers the `helloHandler` function to handle requests to the "/hello" route using `http.HandleFunc()`.
+3. When a request is received, the server checks if the requested file exists in the specified directory. If it does, the server reads the contents of the file and sends it as the response body. If not, it returns a "404 Not Found" error.
 
-- `fmt.Printf("starting server at port 8080\n")`: This line prints a message indicating that the server is starting.
+4. Additionally, if the requested path is a directory (e.g., "/"), the server attempts to serve an index file such as "index.html" by default if it exists in that directory.
 
-- `if err := http.ListenAndServe(":8080", nil); err != nil { ... }`: Finally, this line starts the HTTP server on port 8080 using `http.ListenAndServe()`. If there's an error starting the server, it logs the error and exits the program using `log.Fatal()`.
+### `http.Handle("/", fileServer)`:
 
-Each part of the code is explained thoroughly, assuming no prior knowledge, to help you understand the program better. If you have any further questions, feel free to ask!
+The `http.Handle()` function registers a handler for the given pattern (in this case, "/"). Here's what happens internally:
+
+1. It takes two parameters: the URL pattern and the handler function or object to be registered for that pattern.
+
+2. In this case, `"/"` is the URL pattern, which represents the root path. The `fileServer` variable, created by `http.FileServer()`, is the handler object that serves static files from the "./static" directory.
+
+3. When a request is received with a path matching "/", the server invokes the handler function (`fileServer`) registered for that pattern.
+
+4. As a result, the static files from the "./static" directory, including any default index file like "index.html", are served to the client.
+
+### `http.HandleFunc("/form", formHandler)`:
+
+This line registers the `formHandler` function to handle requests to the "/form" route using `http.HandleFunc()`. Here's what happens internally:
+
+1. `http.HandleFunc()` is a convenience method for registering a function to handle HTTP requests for a specific route pattern.
+  
+2. It takes two parameters: the route pattern ("/form" in this case) and the handler function (`formHandler`).
+
+3. When a client makes a request to the "/form" route, the server invokes the `formHandler` function to process that request.
+
+4. Inside the `formHandler` function, the server parses form data from the request, handles any errors, and sends a response back to the client.
+
+### `http.HandleFunc("/hello", helloHandler)`:
+
+Similarly, this line registers the `helloHandler` function to handle requests to the "/hello" route using `http.HandleFunc()`. Here's what happens internally:
+
+1. It associates the "/hello" route pattern with the `helloHandler` function, which is called whenever a client requests the "/hello" route.
+
+2. The `helloHandler` function checks if the request path is "/hello" and if the request method is GET. If both conditions are met, it sends "hello!" as the response to the client.
+
+### `fmt.Printf("starting server at port 8080\n")`:
+
+This line prints a message to the console indicating that the server is starting at port 8080. It's a helpful message for developers to know that the server is up and running.
+
+### `if err := http.ListenAndServe(":8080", nil); err != nil { ... }`:
+
+Finally, this line starts the HTTP server on port 8080 using `http.ListenAndServe()`. Here's what happens internally:
+
+1. `http.ListenAndServe()` starts an HTTP server with the specified address (":8080" in this case) and a given handler.
+
+2. The second argument is `nil`, indicating that the default router provided by `http.DefaultServeMux` should be used.
+
+3. If an error occurs while starting the server (for example, if the specified port is already in use), `http.ListenAndServe()` returns an error. In that case, the `if` statement logs the error using `log.Fatal()` and exits the program.
+
+By registering handlers for specific routes and starting the server, this main function ensures that incoming HTTP requests are properly routed and handled by the appropriate functions.
 
 ## Conclusion
 
